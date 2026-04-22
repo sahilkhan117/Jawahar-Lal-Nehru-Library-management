@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Syne+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #004ac6;
+  --color-primary-container: #dbe1ff;
+  --color-on-primary-container: #00174b;
+  
+  --color-secondary: #006c49;
+  --color-secondary-container: #8ef7ca;
+  --color-on-secondary-container: #002114;
+  
+  --color-tertiary: #aa3bff;
+  --color-tertiary-container: #f3daff;
+  --color-on-tertiary-container: #2d0050;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
+
+  --color-background: #faf8ff;
+  --color-on-background: #191b23;
+  --color-surface: #ffffff;
+  --color-on-surface: #191b23;
+  --color-surface-variant: #f1f5f9;
+  --color-on-surface-variant: #434655;
+  --color-outline: #737686;
+  --color-outline-variant: #e2e8f0;
+
+  --font-headline: "Instrument Serif", serif;
+  --font-body: "Syne", sans-serif;
+  --font-mono: "Syne Mono", monospace;
+
+  --radius-card: 24px;
+  --radius-button: 12px;
+  
+  --shadow-bento: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+
+@layer base {
+  body {
+    @apply font-body bg-background text-on-background antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline font-bold;
+  }
+}
+
+@layer components {
+  .bento-card {
+    @apply bg-surface rounded-card shadow-bento p-6 border border-outline-variant/30;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-2.5 rounded-button font-semibold hover:opacity-90 transition-all active:scale-95 shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply border border-outline-variant text-on-surface px-6 py-2.5 rounded-button font-semibold hover:bg-surface-variant transition-all active:scale-95 shadow-sm;
+  }
+}
