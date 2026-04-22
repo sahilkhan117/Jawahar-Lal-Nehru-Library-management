@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { MdDownload, MdAdd, MdBook, MdCheckCircle, MdAssignmentInd, MdWarning, MdSearch, MdFilterList, MdShelves, MdBuild, MdSearchOff, MdMoreVert, MdChevronLeft, MdChevronRight, MdUploadFile, MdInfo } from 'react-icons/md';
-import axios from 'axios';
+import { 
+  MdDownload, MdAdd, MdBook, MdCheckCircle, 
+  MdAssignmentInd, MdWarning, MdSearch, MdFilterList, 
+  MdShelves, MdBuild, MdSearchOff, MdMoreVert, 
+  MdChevronLeft, MdChevronRight, MdUploadFile, MdInfo,
+  MdDeleteOutline, MdEdit
+} from 'react-icons/md';
+import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import Papa from 'papaparse';
 import AddBookModal from '../../components/modals/AddBookModal';
+import BulkImportModal from '../../components/modals/BulkImportModal';
 
 export default function LibrarianInventory() {
   const [books, setBooks] = useState([]);
@@ -13,19 +20,22 @@ export default function LibrarianInventory() {
   const [shelfFilter, setShelfFilter] = useState('All Shelves');
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [uploadingCSV, setUploadingCSV] = useState(false);
 
-  // Fetch books
+  // Fetch books from optimized endpoint
   const fetchBooks = async () => {
     try {
       setLoading(true);
       const params = {};
-      if (searchQuery) params.query = searchQuery;
+      if (searchQuery) params.search = searchQuery;
       if (categoryFilter !== 'All Categories') params.category = categoryFilter;
       if (shelfFilter !== 'All Shelves') params.shelf = shelfFilter;
 
-      const res = await axios.get('http://localhost:5000/api/books', { params });
-      setBooks(res.data);
+      const res = await API.get('/books', { params });
+      if (res.data.success) {
+        setBooks(res.data.books);
+      }
     } catch (error) {
       console.error("Error fetching books:", error);
       toast.error("Failed to load inventory");
@@ -37,16 +47,15 @@ export default function LibrarianInventory() {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchBooks();
-    }, 300); // Debounce search
+    }, 400); 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, categoryFilter, shelfFilter]);
 
   // Derived stats
-  const totalBooks = books.reduce((acc, curr) => acc + curr.totalCopies, 0);
-  const availableBooks = books.reduce((acc, curr) => acc + curr.availableCopies, 0);
+  const totalBooks = books.reduce((acc, curr) => acc + (curr.totalCopies || 0), 0);
+  const availableBooks = books.reduce((acc, curr) => acc + (curr.availableCopies || 0), 0);
   const issuedBooks = totalBooks - availableBooks;
 
-  // Handle Export CSV
   const handleExport = () => {
     if (books.length === 0) {
       toast.error("No books to export");
@@ -66,18 +75,17 @@ export default function LibrarianInventory() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'library_inventory.csv');
+    link.setAttribute('download', `library_inventory_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Handle Bulk Import
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+    if (!file.name.endsWith('.csv')) {
       toast.error("Please upload a valid CSV file");
       return;
     }
@@ -87,184 +95,211 @@ export default function LibrarianInventory() {
 
     try {
       setUploadingCSV(true);
-      const res = await axios.post('http://localhost:5000/api/books/bulk', formData, {
+      const res = await API.post('/books/bulk', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      if (res.status === 207) {
+      if (res.data.success) {
         toast.success(res.data.message);
-      } else {
-        toast.success(`Successfully imported ${res.data.count} books`);
+        fetchBooks();
       }
-      fetchBooks(); // Refresh list
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to import books");
     } finally {
       setUploadingCSV(false);
-      e.target.value = null; // Reset input
+      if (e.target) e.target.value = null;
     }
   };
 
   return (
-    <div className="space-y-card-gap relative">
+    <div className="space-y-6 pb-10">
       <AddBookModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
         onBookAdded={fetchBooks} 
       />
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Inventory Management</h2>
-          <p className="font-body-lg text-body-lg text-outline mt-2">Manage physical assets, locations, and bulk uploads.</p>
+      <BulkImportModal 
+        isOpen={isBulkModalOpen} 
+        onClose={() => setIsBulkModalOpen(false)} 
+        onUpload={handleFileSelect} 
+        uploading={uploadingCSV} 
+      />
+
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+        <div className="space-y-1">
+          <h2 className="font-headline text-3xl italic text-on-surface">Asset Registry</h2>
+          <p className="text-on-surface-variant/60 text-sm">Monitor and manage the global book inventory.</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleExport} className="bg-surface text-on-surface border border-outline-variant font-label-md text-label-md py-2.5 px-5 rounded-xl hover:bg-surface-variant transition-colors flex items-center gap-2">
-            <MdDownload className="text-[18px]" />
-            Export List
+        <div className="flex flex-wrap gap-3">
+          <button 
+            onClick={() => setIsBulkModalOpen(true)} 
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface font-bold text-sm hover:bg-surface-variant/10 transition-all"
+          >
+            <MdUploadFile className="text-lg" />
+            Bulk Ingestion
           </button>
-          <button onClick={() => setIsAddModalOpen(true)} className="bg-primary text-on-primary font-label-md text-label-md py-2.5 px-5 rounded-xl hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-2 shadow-sm">
-            <MdAdd className="text-[18px]" />
-            Add Single Book
+          <button 
+            onClick={handleExport} 
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface-variant font-bold text-sm hover:bg-surface-variant/10 transition-all"
+          >
+            <MdDownload className="text-lg" />
+            Export CSV
+          </button>
+          <button 
+            onClick={() => setIsAddModalOpen(true)} 
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-headline italic text-lg shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all"
+          >
+            <MdAdd className="text-xl" />
+            Add New Entry
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
-        <div className="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-card-gap">
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
-                <MdBook className="text-[18px]" />
-              </div>
-              <span className="font-label-md text-label-md text-outline">Total Books</span>
+      {/* Stats Bento */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-surface rounded-card p-6 border border-outline-variant/30 shadow-bento group">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+              <MdBook className="text-xl" />
             </div>
-            <div className="font-headline-md text-headline-md text-on-surface">{totalBooks}</div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Total Assets</span>
           </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
-                <MdCheckCircle className="text-[18px]" />
-              </div>
-              <span className="font-label-md text-label-md text-outline">Available</span>
-            </div>
-            <div className="font-headline-md text-headline-md text-on-surface">{availableBooks}</div>
-          </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary">
-                <MdAssignmentInd className="text-[18px]" />
-              </div>
-              <span className="font-label-md text-label-md text-outline">Issued</span>
-            </div>
-            <div className="font-headline-md text-headline-md text-on-surface">{issuedBooks}</div>
-          </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-error-container/50 flex items-center justify-center text-error">
-                <MdWarning className="text-[18px]" />
-              </div>
-              <span className="font-label-md text-label-md text-outline">Action Needed</span>
-            </div>
-            <div className="font-headline-md text-headline-md text-error">0</div>
-          </div>
+          <div className="font-headline italic text-3xl text-on-surface">{totalBooks}</div>
         </div>
+        <div className="bg-surface rounded-card p-6 border border-outline-variant/30 shadow-bento group">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-secondary/10 text-secondary group-hover:scale-110 transition-transform">
+              <MdCheckCircle className="text-xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Available</span>
+          </div>
+          <div className="font-headline italic text-3xl text-secondary">{availableBooks}</div>
+        </div>
+        <div className="bg-surface rounded-card p-6 border border-outline-variant/30 shadow-bento group">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-primary/5 text-primary/60 group-hover:scale-110 transition-transform">
+              <MdAssignmentInd className="text-xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">On Loan</span>
+          </div>
+          <div className="font-headline italic text-3xl text-on-surface-variant">{issuedBooks}</div>
+        </div>
+        <div className="bg-surface rounded-card p-6 border border-outline-variant/30 shadow-bento group">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:scale-110 transition-transform">
+              <MdWarning className="text-xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Restock Needed</span>
+          </div>
+          <div className="font-headline italic text-3xl text-red-500">0</div>
+        </div>
+      </div>
 
-        {/* Inventory List */}
-        <div className="lg:col-span-8 bg-white rounded-[24px] shadow-soft border border-slate-100/50 flex flex-col overflow-hidden min-h-[600px]">
-          <div className="p-6 border-b border-surface-variant flex flex-col md:flex-row gap-4 justify-between items-center bg-white z-10">
-            <div className="relative w-full md:w-72">
-              <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" />
+      <div className="grid grid-cols-12 gap-6">
+        {/* Main List Section */}
+        <div className="col-span-12 bg-surface rounded-card shadow-bento border border-outline-variant/30 flex flex-col min-h-[600px] overflow-hidden">
+          {/* List Toolbar */}
+          <div className="p-6 border-b border-outline-variant/10 flex flex-col sm:flex-row gap-4 justify-between items-center bg-surface/50 backdrop-blur-md sticky top-0 z-10">
+            <div className="relative w-full sm:w-80 group">
+              <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-40 group-focus-within:opacity-100 transition-opacity text-2xl" />
               <input 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2.5 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:bg-white transition-all placeholder:text-outline-variant text-on-surface" 
+                className="w-full bg-background/50 border border-outline-variant/20 rounded-2xl pl-12 pr-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 focus:bg-background transition-all" 
                 placeholder="Search Title, Author, or ISBN..." 
               />
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
-              <select 
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-surface-container-low border-none rounded-xl px-4 py-2.5 font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary focus:bg-white appearance-none pr-10 relative">
-                <option>All Categories</option>
-                <option>Fiction</option>
-                <option>Non-Fiction</option>
-                <option>Reference</option>
-                <option>Web Development</option>
-                <option>Python/Data Science</option>
-                <option>Software Engineering</option>
-              </select>
-              <select 
-                value={shelfFilter}
-                onChange={(e) => setShelfFilter(e.target.value)}
-                className="bg-surface-container-low border-none rounded-xl px-4 py-2.5 font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary focus:bg-white appearance-none pr-10">
-                <option>All Shelves</option>
-                <option>Shelf A-12</option>
-                <option>Shelf P-04</option>
-                <option>Shelf C-01</option>
-              </select>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <div className="relative">
+                <MdFilterList className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 pointer-events-none" />
+                <select 
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="bg-background/50 border border-outline-variant/20 rounded-xl pl-10 pr-8 py-2.5 font-bold text-xs text-on-surface-variant focus:outline-none focus:border-primary/50 appearance-none cursor-pointer">
+                  <option>All Categories</option>
+                  <option>Fiction</option>
+                  <option>Non-Fiction</option>
+                  <option>Reference</option>
+                  <option>Web Development</option>
+                  <option>Python/Data Science</option>
+                  <option>Software Engineering</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto flex-1">
+          <div className="flex-1 overflow-x-auto">
             {loading ? (
-              <div className="flex justify-center items-center h-64 text-outline">Loading...</div>
+              <div className="flex flex-col items-center justify-center h-96 space-y-4">
+                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest opacity-40">Syncing Catalog...</p>
+              </div>
             ) : books.length === 0 ? (
-              <div className="flex flex-col justify-center items-center h-64 text-outline">
-                <MdSearchOff className="text-4xl mb-2" />
-                <p>No books found matching your criteria</p>
+              <div className="flex flex-col justify-center items-center h-96 text-on-surface-variant/40 italic">
+                <MdSearchOff className="text-6xl mb-4 opacity-20" />
+                <p className="text-lg">No assets found matching your criteria</p>
               </div>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-surface-variant bg-surface-bright/50 font-label-sm text-label-sm text-outline uppercase tracking-wider">
-                    <th className="p-4 pl-6 font-medium">Book Details</th>
-                    <th className="p-4 font-medium">ISBN</th>
-                    <th className="p-4 font-medium">Location</th>
-                    <th className="p-4 font-medium">Status</th>
-                    <th className="p-4 pr-6 font-medium text-right">Actions</th>
+                  <tr className="bg-background/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                    <th className="px-6 py-4">Asset Details</th>
+                    <th className="px-6 py-4">Identification</th>
+                    <th className="px-6 py-4">Location</th>
+                    <th className="px-6 py-4">Availability</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-surface-variant/50">
+                <tbody className="divide-y divide-outline-variant/10">
                   {books.map(book => (
-                    <tr key={book._id} className="hover:bg-surface-container-low/50 transition-colors group">
-                      <td className="p-4 pl-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-14 bg-surface-dim rounded flex items-center justify-center shrink-0">
-                            <MdBook className="text-outline-variant" />
+                    <tr key={book._id} className="hover:bg-surface-variant/5 transition-all group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-16 rounded-lg overflow-hidden bg-background shadow-lg border border-outline-variant/20 flex items-center justify-center shrink-0">
+                            {book.coverImageUrl ? (
+                                <img src={book.coverImageUrl} alt={book.title} className="w-full h-full object-cover" />
+                            ) : (
+                                <MdBook className="text-on-surface-variant/20 text-2xl" />
+                            )}
                           </div>
-                          <div>
-                            <div className="font-label-md text-label-md text-on-surface font-semibold">{book.title}</div>
-                            <div className="font-body-md text-body-md text-outline text-[13px] mt-0.5">{book.author}</div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-on-surface truncate group-hover:text-primary transition-colors">{book.title}</div>
+                            <div className="text-xs text-on-surface-variant opacity-60 truncate">{book.author}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 font-body-md text-body-md text-on-surface-variant">{book.isbn}</td>
-                      <td className="p-4">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container font-label-sm text-label-sm text-on-surface">
-                          <MdShelves className="text-[14px]" />
-                          {book.shelfLocation || 'Unassigned'}
+                      <td className="px-6 py-4 font-mono text-[10px] text-on-surface-variant font-bold tracking-wider">{book.isbn}</td>
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/50 border border-outline-variant/10 font-bold text-[10px] text-on-surface-variant uppercase tracking-tighter">
+                          <MdShelves className="text-sm opacity-60" />
+                          {book.shelfLocation || 'Main Hall'}
                         </div>
                       </td>
-                      <td className="p-4">
-                        {book.availableCopies > 0 ? (
-                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold bg-secondary/10 text-secondary border border-secondary/20">
-                             Available ({book.availableCopies}/{book.totalCopies})
-                           </span>
-                        ) : (
-                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold bg-tertiary/10 text-tertiary border border-tertiary/20">
-                             Issued
-                           </span>
-                        )}
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] font-bold mb-1">
+                            <span className={book.availableCopies > 0 ? 'text-secondary' : 'text-red-500'}>
+                              {book.availableCopies > 0 ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                            <span className="text-on-surface-variant opacity-40">{book.availableCopies}/{book.totalCopies}</span>
+                          </div>
+                          <div className="h-1.5 w-24 bg-background rounded-full overflow-hidden border border-outline-variant/10">
+                            <div 
+                                className={`h-full transition-all duration-1000 ${book.availableCopies > 0 ? 'bg-secondary' : 'bg-red-500'}`}
+                                style={{ width: `${(book.availableCopies / (book.totalCopies || 1)) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="p-4 pr-6 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex justify-end gap-1">
-                          <button className="p-1.5 text-outline hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                            <MdBuild className="text-[18px]" />
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-xl transition-all">
+                            <MdEdit className="text-xl" />
                           </button>
-                          <button className="p-1.5 text-outline hover:text-on-surface hover:bg-surface-variant rounded-lg transition-colors">
-                            <MdMoreVert className="text-[18px]" />
+                          <button className="p-2 text-on-surface-variant hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                            <MdDeleteOutline className="text-xl" />
                           </button>
                         </div>
                       </td>
@@ -275,77 +310,22 @@ export default function LibrarianInventory() {
             )}
           </div>
           
-          <div className="p-4 border-t border-surface-variant flex items-center justify-between text-outline font-label-sm text-label-sm bg-white">
-            <div>Showing {books.length} entries</div>
-            <div className="flex gap-1">
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors disabled:opacity-50" disabled>
-                <MdChevronLeft className="text-[18px]" />
+          {/* Pagination */}
+          <div className="p-4 border-t border-outline-variant/10 flex items-center justify-between bg-surface-variant/5">
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-40">
+              Sync complete. {books.length} assets retrieved.
+            </span>
+            <div className="flex gap-2">
+              <button className="p-2 rounded-xl hover:bg-surface-variant/20 transition-all disabled:opacity-20" disabled>
+                <MdChevronLeft className="text-xl" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-medium">1</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors disabled:opacity-50" disabled>
-                <MdChevronRight className="text-[18px]" />
+              <button className="w-8 h-8 rounded-xl bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20">1</button>
+              <button className="p-2 rounded-xl hover:bg-surface-variant/20 transition-all disabled:opacity-20" disabled>
+                <MdChevronRight className="text-xl" />
               </button>
             </div>
           </div>
         </div>
-
-        {/* Sidebar panels */}
-        <div className="lg:col-span-4 flex flex-col gap-card-gap">
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Bulk Import</h3>
-            <p className="font-body-md text-body-md text-outline mb-6 text-[14px]">Upload a CSV file to add multiple books at once. Format must match the system template.</p>
-            
-            <label className="border-2 border-dashed border-outline-variant/60 rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-surface-bright hover:bg-surface-container-low transition-colors cursor-pointer group">
-              <input type="file" accept=".csv" className="hidden" onChange={handleFileSelect} disabled={uploadingCSV} />
-              <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <MdUploadFile className="text-[24px]" />
-              </div>
-              <div className="font-label-md text-label-md text-on-surface mb-1">
-                 {uploadingCSV ? 'Uploading...' : 'Drag & drop your CSV here'}
-              </div>
-              <div className="font-body-md text-body-md text-outline text-[13px] mb-4">or click to browse files</div>
-              <div className="bg-white border border-outline-variant text-on-surface font-label-sm text-label-sm py-2 px-4 rounded-lg hover:bg-surface-variant transition-colors shadow-sm">
-                  {uploadingCSV ? 'Processing...' : 'Select File'}
-              </div>
-            </label>
-
-            <div className="mt-4 flex items-center justify-center">
-              <button onClick={() => {
-                const template = "title,author,isbn,category,totalCopies,availableCopies,shelfLocation\nExample Book,John Doe,978-0000000000,Fiction,5,5,Shelf A-1";
-                const blob = new Blob([template], { type: 'text/csv' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute('download', 'book_import_template.csv');
-                document.body.appendChild(link);
-                link.click();
-              }} className="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1">
-                <MdDownload className="text-[16px]" />
-                Download CSV Template
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-[24px] shadow-soft border border-slate-100/50 flex-1">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-4">Recent Alerts</h3>
-            <div className="space-y-3">
-              <div className="p-4 rounded-xl border border-error-container bg-error-container/20 flex gap-3 items-start">
-                <MdWarning className="text-error mt-0.5" />
-                <div>
-                  <div className="font-label-md text-label-md text-on-surface">No lost books reported</div>
-                  <div className="font-body-md text-body-md text-outline text-[13px] mt-0.5">Inventory is healthy.</div>
-                </div>
-              </div>
-              <div className="p-4 rounded-xl border border-surface-variant bg-surface-container-low flex gap-3 items-start">
-                <MdInfo className="text-tertiary mt-0.5" />
-                <div>
-                  <div className="font-label-md text-label-md text-on-surface">System Update</div>
-                  <div className="font-body-md text-body-md text-outline text-[13px] mt-0.5">All features are now fully functional.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   );

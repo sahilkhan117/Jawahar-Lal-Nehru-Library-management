@@ -1,232 +1,269 @@
-import React from 'react';
-import { MdSearch, MdNotifications, MdHelpOutline, MdFilterList, MdCampaign, MdWarning, MdTrendingUp, MdHourglassBottom, MdPriorityHigh, MdAccountBalanceWallet, MdCheckCircle, MdKeyboardArrowDown, MdMail, MdSchedule, MdInfo, MdChevronLeft, MdChevronRight } from 'react-icons/md';
+import React, { useState, useEffect } from 'react';
+import { 
+  MdSearch, MdNotifications, MdHelpOutline, MdFilterList, 
+  MdCampaign, MdWarning, MdTrendingUp, MdHourglassBottom, 
+  MdPriorityHigh, MdAccountBalanceWallet, MdCheckCircle, 
+  MdKeyboardArrowDown, MdMail, MdSchedule, MdInfo, 
+  MdChevronLeft, MdChevronRight, MdPersonSearch, MdHistory
+} from 'react-icons/md';
+import API from '../../api/axios';
+import { toast } from 'react-hot-toast';
 
 export default function LibrarianDefaulters() {
+  const [defaulters, setDefaulters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalOverdue: 0,
+    criticalDefaults: 0,
+    totalFines: 0
+  });
+
+  useEffect(() => {
+    const fetchDefaulters = async () => {
+      try {
+        setLoading(true);
+        // Assuming we have an endpoint or we filter transactions
+        const res = await API.get('/telemetry/library');
+        if (res.data.success) {
+            // Mocking for now as per current backend state, but prepared for real data
+            const mockDefaulters = [
+                { 
+                    id: '1', 
+                    name: 'Eleanor James', 
+                    studentId: 'ST-99281', 
+                    book: 'Principles of Quantum Mechanics', 
+                    author: 'P.A.M. Dirac',
+                    dueDate: 'Oct 12, 2023',
+                    daysOverdue: 21,
+                    status: 'critical',
+                    initials: 'EJ'
+                },
+                { 
+                    id: '2', 
+                    name: 'Marcus Webb', 
+                    studentId: 'ST-44102', 
+                    book: 'Macroeconomics, 8th Ed.', 
+                    author: 'Gregory Mankiw',
+                    dueDate: 'Oct 19, 2023',
+                    daysOverdue: 14,
+                    status: 'high',
+                    initials: 'MW'
+                },
+                { 
+                    id: '3', 
+                    name: 'Sarah Kline', 
+                    studentId: 'ST-10994', 
+                    book: 'Design of Everyday Things', 
+                    author: 'Don Norman',
+                    dueDate: 'Oct 28, 2023',
+                    daysOverdue: 5,
+                    status: 'medium',
+                    initials: 'SK'
+                }
+            ];
+            setDefaulters(mockDefaulters);
+            setStats({
+                totalOverdue: 142,
+                criticalDefaults: 38,
+                totalFines: 450.50
+            });
+        }
+      } catch (error) {
+        console.error("Failed to fetch defaulters", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDefaulters();
+  }, []);
+
+  const handleNudge = (studentId) => {
+    toast.success(`Reminder sent to student ${studentId}`);
+  };
+
+  const handleNudgeAll = () => {
+    toast.promise(
+        new Promise(resolve => setTimeout(resolve, 2000)),
+        {
+          loading: 'Sending bulk reminders...',
+          success: '142 students nudged successfully!',
+          error: 'Failed to send reminders',
+        }
+    );
+  };
+
   return (
-    <div className="space-y-card-gap">
-      
+    <div className="space-y-6 pb-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+        <div className="space-y-1">
+          <h2 className="font-headline text-3xl italic text-on-surface">Compliance Hub</h2>
+          <p className="text-on-surface-variant/60 text-sm">Monitor asset retention and enforce return policies.</p>
+        </div>
+        <div className="flex gap-3">
+          <div className="relative hidden md:block">
+            <MdPersonSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
+            <input 
+              type="text" 
+              placeholder="Search student or ID..."
+              className="pl-12 pr-4 py-2.5 rounded-xl bg-surface border border-outline-variant/30 text-xs font-bold text-on-surface focus:outline-none focus:border-primary/50 transition-all"
+            />
+          </div>
+          <button 
+            onClick={handleNudgeAll}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-500 text-white font-headline italic text-lg shadow-xl shadow-red-500/20 hover:shadow-red-500/30 transition-all"
+          >
+            <MdCampaign className="text-xl" />
+            Nudge All
+          </button>
+        </div>
+      </div>
 
-<header className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md font-['Manrope'] text-sm tracking-tight border-b border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sticky top-0 z-30 flex items-center justify-between w-full h-16 px-8 max-w-full">
-<div className="flex items-center gap-4 flex-1">
+      {/* Stats Bento */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-surface rounded-card p-8 border border-outline-variant/30 shadow-bento relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
+            <MdWarning className="text-6xl text-red-500" />
+          </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-2xl bg-red-500/10 text-red-500">
+              <MdWarning className="text-2xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Overdue Assets</span>
+          </div>
+          <div className="font-headline italic text-4xl text-on-surface">{stats.totalOverdue}</div>
+          <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter mt-4 flex items-center gap-1">
+            <MdTrendingUp /> +12 new since last audit
+          </p>
+        </div>
 
-<div className="relative w-64 hidden sm:block">
-<MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
-<input className="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Search students, books..." type="text"/>
-</div>
-</div>
-<div className="flex items-center gap-4">
-<button className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200 active:scale-95 transition-transform flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-low">
-<MdNotifications className="" />
-</button>
-<button className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200 active:scale-95 transition-transform flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-low">
-<MdHelpOutline className="" />
-</button>
-<div className="w-px h-6 bg-outline-variant mx-2"></div>
-<button className="active:scale-95 transition-transform">
-<img alt="Librarian profile picture" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" data-alt="portrait of a professional woman with glasses smiling subtly in a bright modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDd6L_MalbEXkTF-MwV-RYOnTBIh0-jaQzxR6VkqCnAnqjHzM0NYk3f-QUPYN1Y1ThkB43Oomazl_as_p7d9nN4z2azxwXYvQjZodORxc_WotZKODMedYPYVUW9RCRDSHeK-3VhofT6M9buxW2UrzERxkx0QR-Eyo2oxyLYrHGjYgUuiTxaZy0yNTDq3e_6Oc0yy2c3yQF3EZtpdtt2a10SJ7DUVH7ZbWqddGxZU87Hsd0gi8iDB-9NzrgyB4DlrHqfmUPVNd67qEvY"/>
-</button>
-</div>
-</header>
+        <div className="bg-surface rounded-card p-8 border border-outline-variant/30 shadow-bento relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
+            <MdPriorityHigh className="text-6xl text-warning" />
+          </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-2xl bg-warning/10 text-warning">
+              <MdHourglassBottom className="text-2xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Critical Defaults</span>
+          </div>
+          <div className="font-headline italic text-4xl text-on-surface">{stats.criticalDefaults}</div>
+          <p className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-tighter mt-4">
+             Items overdue by &gt; 14 days
+          </p>
+        </div>
 
-<div className="p-container-padding flex-1 flex flex-col gap-section-margin max-w-7xl mx-auto w-full">
+        <div className="bg-surface rounded-card p-8 border border-outline-variant/30 shadow-bento relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
+            <MdAccountBalanceWallet className="text-6xl text-secondary" />
+          </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-2xl bg-secondary/10 text-secondary">
+              <MdAccountBalanceWallet className="text-2xl" />
+            </div>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Outstanding Fines</span>
+          </div>
+          <div className="font-headline italic text-4xl text-on-surface">₹{stats.totalFines.toFixed(2)}</div>
+          <p className="text-[10px] font-bold text-secondary uppercase tracking-tighter mt-4 flex items-center gap-1">
+            <MdCheckCircle /> ₹120.00 recovered today
+          </p>
+        </div>
+      </div>
 
-<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-<div>
-<h1 className="font-display-lg text-display-lg text-on-surface mb-2">Defaulters Action Center</h1>
-<p className="font-body-lg text-body-lg text-on-surface-variant">Manage and track overdue library assets.</p>
-</div>
-<div className="flex gap-3">
-<button className="bg-surface border border-outline-variant text-on-surface font-label-md text-label-md py-2 px-4 rounded-xl flex items-center gap-2 hover:bg-surface-container-low transition-colors">
-<MdFilterList className="" />
-                        Filter
+      {/* Defaulters Table */}
+      <div className="bg-surface rounded-card shadow-bento border border-outline-variant/30 overflow-hidden">
+        <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-variant/5 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+             <MdHistory className="text-xl text-on-surface-variant opacity-60" />
+             <h3 className="font-headline italic text-xl text-on-surface">Priority Recovery List</h3>
+          </div>
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-background/50 border border-outline-variant/20 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hover:bg-background transition-all">
+             Sort by Days Overdue <MdKeyboardArrowDown className="text-sm" />
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-background/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                <th className="px-6 py-4">Patron Identity</th>
+                <th className="px-6 py-4">Overdue Asset</th>
+                <th className="px-6 py-4">Due Since</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Escalation</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/10">
+              {loading ? (
+                <tr>
+                   <td colSpan="5" className="py-20 text-center italic text-on-surface-variant/40">Syncing Defaulters...</td>
+                </tr>
+              ) : defaulters.map(def => (
+                <tr key={def.id} className="group hover:bg-surface-variant/5 transition-all">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-headline italic text-lg shadow-sm ${
+                        def.status === 'critical' ? 'bg-red-500/10 text-red-500' : 
+                        def.status === 'high' ? 'bg-warning/10 text-warning' : 
+                        'bg-secondary/10 text-secondary'
+                      }`}>
+                        {def.initials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-on-surface truncate">{def.name}</div>
+                        <div className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-tighter">{def.studentId}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="min-w-0 max-w-[200px]">
+                      <div className="text-sm font-bold text-on-surface truncate">{def.book}</div>
+                      <div className="text-[10px] text-on-surface-variant opacity-60 truncate">{def.author}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-xs font-bold text-on-surface-variant opacity-80">{def.dueDate}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${
+                      def.status === 'critical' ? 'bg-red-500/10 text-red-500' : 
+                      def.status === 'high' ? 'bg-warning/10 text-warning' : 
+                      'bg-secondary/10 text-secondary'
+                    }`}>
+                      {def.status === 'critical' ? <MdPriorityHigh /> : <MdSchedule />}
+                      {def.daysOverdue} Days
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleNudge(def.studentId)}
+                      className="px-4 py-2 rounded-xl border border-outline-variant/30 text-[10px] font-bold text-primary uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-sm"
+                    >
+                      <MdMail className="inline mr-1 text-sm" /> Send Notice
                     </button>
-<button className="bg-primary text-on-primary font-label-md text-label-md py-2 px-6 rounded-xl flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-[0_4px_14px_rgba(0,74,198,0.2)]">
-<MdCampaign className="" />
-                        Nudge All
-                    </button>
-</div>
-</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-<div className="grid grid-cols-1 md:grid-cols-3 gap-card-gap">
-<div className="bg-white rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-surface-variant/50 flex flex-col gap-2">
-<div className="flex items-center gap-2 text-error">
-<MdWarning className="text-xl" />
-<span className="font-label-md text-label-md text-on-surface-variant">Total Overdue Items</span>
-</div>
-<div className="font-display-lg text-[40px] leading-tight text-on-surface">142</div>
-<div className="font-label-sm text-label-sm text-error flex items-center gap-1 mt-1">
-<MdTrendingUp className="text-[16px]" />
-                        +12 since last week
-                    </div>
-</div>
-<div className="bg-white rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-surface-variant/50 flex flex-col gap-2">
-<div className="flex items-center gap-2 text-tertiary">
-<MdHourglassBottom className="text-xl" />
-<span className="font-label-md text-label-md text-on-surface-variant">Critical Defaults (&gt;14 Days)</span>
-</div>
-<div className="font-display-lg text-[40px] leading-tight text-on-surface">38</div>
-<div className="font-label-sm text-label-sm text-outline flex items-center gap-1 mt-1">
-<MdPriorityHigh className="text-[16px]" />
-                        Immediate action required
-                    </div>
-</div>
-<div className="bg-white rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-surface-variant/50 flex flex-col gap-2">
-<div className="flex items-center gap-2 text-primary">
-<MdAccountBalanceWallet className="text-xl" />
-<span className="font-label-md text-label-md text-on-surface-variant">Estimated Fines Accrued</span>
-</div>
-<div className="font-display-lg text-[40px] leading-tight text-on-surface">$450.50</div>
-<div className="font-label-sm text-label-sm text-secondary flex items-center gap-1 mt-1">
-<MdCheckCircle className="text-[16px]" />
-                        $120 collected today
-                    </div>
-</div>
-</div>
-
-<div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-surface-variant/50 overflow-hidden flex flex-col">
-<div className="p-6 border-b border-surface-variant/50 flex justify-between items-center bg-surface-container-lowest">
-<h2 className="font-headline-sm text-headline-sm text-on-surface">Prioritized Defaulters</h2>
-<div className="flex items-center gap-2 text-outline font-label-sm text-label-sm">
-<span>Sort by:</span>
-<button className="flex items-center gap-1 text-on-surface font-medium hover:text-primary transition-colors">
-                            Days Overdue
-                            <MdKeyboardArrowDown className="text-[18px]" />
-</button>
-</div>
-</div>
-<div className="overflow-x-auto">
-<table className="w-full text-left border-collapse">
-<thead>
-<tr className="border-b border-surface-variant/50 bg-surface-container-low/30">
-<th className="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Student Details</th>
-<th className="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Asset Information</th>
-<th className="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Due Date</th>
-<th className="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
-<th className="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Action</th>
-</tr>
-</thead>
-<tbody className="divide-y divide-surface-variant/30">
-
-<tr className="hover:bg-surface-container-low/20 transition-colors group">
-<td className="py-4 px-6">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-full bg-error-container/30 text-error flex items-center justify-center font-headline-sm text-headline-sm">
-                                            EJ
-                                        </div>
-<div>
-<div className="font-label-md text-label-md text-on-surface">Eleanor James</div>
-<div className="font-body-sm text-[13px] text-outline">ID: ST-99281</div>
-</div>
-</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-label-md text-label-md text-on-surface">The Principles of Quantum Mechanics</div>
-<div className="font-body-sm text-[13px] text-outline">P.A.M. Dirac • Barcode: 88219</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-body-md text-body-md text-on-surface">Oct 12, 2023</div>
-</td>
-<td className="py-4 px-6">
-<div className="inline-flex items-center gap-1.5 bg-error-container text-on-error-container font-label-sm text-label-sm px-3 py-1 rounded-full">
-<MdWarning className="text-[14px]" />
-                                        21 Days Overdue
-                                    </div>
-</td>
-<td className="py-4 px-6 text-right">
-<button className="bg-surface border border-outline-variant text-primary font-label-sm text-label-sm py-1.5 px-3 rounded-lg hover:bg-primary-fixed hover:border-primary-fixed transition-colors flex items-center gap-1.5 ml-auto">
-<MdMail className="text-[16px]" />
-                                        Remind
-                                    </button>
-</td>
-</tr>
-
-<tr className="hover:bg-surface-container-low/20 transition-colors group">
-<td className="py-4 px-6">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-full bg-tertiary-container/10 text-tertiary flex items-center justify-center font-headline-sm text-headline-sm">
-                                            MW
-                                        </div>
-<div>
-<div className="font-label-md text-label-md text-on-surface">Marcus Webb</div>
-<div className="font-body-sm text-[13px] text-outline">ID: ST-44102</div>
-</div>
-</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-label-md text-label-md text-on-surface">Macroeconomics, 8th Ed.</div>
-<div className="font-body-sm text-[13px] text-outline">Gregory Mankiw • Barcode: 11092</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-body-md text-body-md text-on-surface">Oct 19, 2023</div>
-</td>
-<td className="py-4 px-6">
-<div className="inline-flex items-center gap-1.5 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full">
-<MdSchedule className="text-[14px]" />
-                                        14 Days Overdue
-                                    </div>
-</td>
-<td className="py-4 px-6 text-right">
-<button className="bg-surface border border-outline-variant text-primary font-label-sm text-label-sm py-1.5 px-3 rounded-lg hover:bg-primary-fixed hover:border-primary-fixed transition-colors flex items-center gap-1.5 ml-auto">
-<MdMail className="text-[16px]" />
-                                        Remind
-                                    </button>
-</td>
-</tr>
-
-<tr className="hover:bg-surface-container-low/20 transition-colors group">
-<td className="py-4 px-6">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm">
-                                            SK
-                                        </div>
-<div>
-<div className="font-label-md text-label-md text-on-surface">Sarah Kline</div>
-<div className="font-body-sm text-[13px] text-outline">ID: ST-10994</div>
-</div>
-</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-label-md text-label-md text-on-surface">Design of Everyday Things</div>
-<div className="font-body-sm text-[13px] text-outline">Don Norman • Barcode: 55430</div>
-</td>
-<td className="py-4 px-6">
-<div className="font-body-md text-body-md text-on-surface">Oct 28, 2023</div>
-</td>
-<td className="py-4 px-6">
-<div className="inline-flex items-center gap-1.5 bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full">
-<MdInfo className="text-[14px]" />
-                                        5 Days Overdue
-                                    </div>
-</td>
-<td className="py-4 px-6 text-right">
-<button className="bg-surface border border-outline-variant text-primary font-label-sm text-label-sm py-1.5 px-3 rounded-lg hover:bg-primary-fixed hover:border-primary-fixed transition-colors flex items-center gap-1.5 ml-auto">
-<MdMail className="text-[16px]" />
-                                        Remind
-                                    </button>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<div className="p-4 border-t border-surface-variant/50 bg-surface-container-lowest flex items-center justify-between">
-<span className="font-label-sm text-label-sm text-outline">Showing 1-3 of 142 defaulters</span>
-<div className="flex gap-1">
-<button className="w-8 h-8 rounded-md flex items-center justify-center text-outline hover:bg-surface-variant hover:text-on-surface transition-colors disabled:opacity-50" disabled="">
-<MdChevronLeft className="text-[20px]" />
-</button>
-<button className="w-8 h-8 rounded-md flex items-center justify-center bg-primary text-on-primary font-label-sm text-label-sm">1</button>
-<button className="w-8 h-8 rounded-md flex items-center justify-center text-on-surface hover:bg-surface-variant transition-colors font-label-sm text-label-sm">2</button>
-<button className="w-8 h-8 rounded-md flex items-center justify-center text-on-surface hover:bg-surface-variant transition-colors font-label-sm text-label-sm">3</button>
-<span className="w-8 h-8 flex items-center justify-center text-outline">...</span>
-<button className="w-8 h-8 rounded-md flex items-center justify-center text-outline hover:bg-surface-variant hover:text-on-surface transition-colors">
-<MdChevronRight className="text-[20px]" />
-</button>
-</div>
-</div>
-</div>
-</div>
-
+        {/* Footer */}
+        <div className="p-4 border-t border-outline-variant/10 flex items-center justify-between bg-surface-variant/5">
+          <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-40">
+            Audit Complete. {defaulters.length} Priority cases flagged.
+          </span>
+          <div className="flex gap-2">
+            <button className="p-2 rounded-xl hover:bg-surface-variant/20 transition-all disabled:opacity-20" disabled>
+              <MdChevronLeft className="text-xl" />
+            </button>
+            <button className="w-8 h-8 rounded-xl bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20">1</button>
+            <button className="p-2 rounded-xl hover:bg-surface-variant/20 transition-all disabled:opacity-20" disabled>
+              <MdChevronRight className="text-xl" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
