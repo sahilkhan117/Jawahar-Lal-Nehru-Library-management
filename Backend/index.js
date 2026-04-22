@@ -15,6 +15,10 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/telemetry', require('./routes/telemetry.routes'));
+app.use('/api/upload', require('./routes/upload.routes'));
+app.use('/api/complaints', require('./routes/complaint.routes'));
+app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/librarian', require('./routes/librarian.routes'));
 
 app.get('/', (req, res) => {
   res.send('Library Management System API is running...');

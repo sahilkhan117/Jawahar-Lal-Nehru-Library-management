@@ -6,6 +6,7 @@ import {
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
+import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -51,13 +52,7 @@ export default function StudentDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
           {/* Profile Card */}
           <div className="lg:col-span-12 bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8">
-            <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-background shadow-lg shrink-0">
-              <img 
-                alt="Student Photo" 
-                className="w-full h-full object-cover" 
-                src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=004ac6&color=fff&size=128`}
-              />
-            </div>
+            <ProfilePictureUpload />
             <div className="flex-1 text-center md:text-left space-y-4">
               <h3 className="font-headline text-4xl italic text-on-surface">{user?.name}</h3>
               <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">

@@ -12,6 +12,7 @@ const studentSchema = new mongoose.Schema({
   fatherName: { type: String, required: true },
   mobileNo: { type: Number },
   address: { type: String },
+  profilePicture: { type: String, default: "" },
   
   // Library Specifics
   totalActiveFines: { type: Number, default: 0 },
