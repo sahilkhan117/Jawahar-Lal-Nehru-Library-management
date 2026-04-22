@@ -1,12 +1,15 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   MdDashboard, MdLibraryBooks, MdHistory, MdPayments, MdPerson, 
   MdLocalLibrary, MdWarning, MdSettings, MdGroups, MdSync, MdDns, MdSchool, MdInventory2, MdLogout
 } from 'react-icons/md';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ role }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: MdDashboard },
@@ -34,13 +37,20 @@ const Sidebar = ({ role }) => {
   const links = role === 'admin' ? adminLinks : role === 'librarian' ? librarianLinks : studentLinks;
   const portalName = role.charAt(0).toUpperCase() + role.slice(1) + ' Portal';
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <nav className="bg-surface-container-lowest font-body-md h-screen w-64 border-r border-outline-variant fixed left-0 top-0 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hidden md:flex flex-col py-8 px-4 z-50">
+    <nav className="bg-surface font-body h-screen w-64 border-r border-outline-variant/30 fixed left-0 top-0 shadow-bento hidden md:flex flex-col py-8 px-4 z-50">
       <div className="mb-8 px-4 flex items-center gap-3">
-        <MdLocalLibrary className="text-primary text-3xl" />
+        <div className="p-2 bg-primary rounded-lg text-white">
+          <MdLocalLibrary className="text-2xl" />
+        </div>
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight text-primary leading-none">{portalName}</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">Modern Library</p>
+          <h1 className="text-xl font-headline italic text-on-surface leading-none">{portalName}</h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1 opacity-60">Nexus Library</p>
         </div>
       </div>
       <ul className="flex-1 space-y-2">
@@ -51,24 +61,27 @@ const Sidebar = ({ role }) => {
             <li key={link.path}>
               <Link
                 to={link.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all active:scale-95 transform ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all active:scale-95 transform ${
                   isActive 
-                    ? 'bg-primary-container text-on-primary-container border-r-4 border-primary shadow-sm font-semibold' 
-                    : 'text-on-surface-variant hover:bg-surface-container-low'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20 font-bold' 
+                    : 'text-on-surface-variant hover:bg-background'
                 }`}
               >
-                <Icon className={`text-xl ${isActive ? 'text-primary' : ''}`} />
-                <span className="font-label-md text-label-md">{link.name}</span>
+                <Icon className="text-xl" />
+                <span className="text-xs uppercase tracking-widest">{link.name}</span>
               </Link>
             </li>
           );
         })}
       </ul>
       <div className="mt-auto px-4">
-          <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-lg text-error hover:bg-error/10 transition-all font-label-md text-label-md">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all text-xs font-bold uppercase tracking-widest"
+          >
             <MdLogout className="text-xl" />
             Logout
-          </Link>
+          </button>
       </div>
     </nav>
   );
