@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { 
-  MdBadge, MdSchool, MdCalendarToday, MdCheckCircle, 
-  MdVerified, MdHistory, MdPayments, MdWorkspacePremium, 
-  MdSecurity, MdDownload, MdErrorOutline, MdEmail 
-=======
 import {
   MdDashboard, MdLibraryBooks, MdHistory, MdWarning,
   MdTimeline, MdTrendingUp, MdMenuBook, MdNotificationsActive,
-  MdBadge, MdSchool, MdCheckCircle, MdEventSeat, MdFiberManualRecord
->>>>>>> 8d60695e8c8c6946e1ff86ca51546732c55fe18d
+  MdBadge, MdSchool, MdCheckCircle, MdEventSeat, MdFiberManualRecord, MdEmail
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
 
-export default function StudentDashboard() {
+export default function StudentDashboard() {  
   const { user } = useAuth();
   const [stats, setStats] = useState({
     issuedBooks: 0,
@@ -78,6 +71,7 @@ export default function StudentDashboard() {
   }
 
   return (
+    <>
     <div className="space-y-card-gap pb-10">
       <div className="max-w-6xl mx-auto space-y-card-gap">
 
@@ -86,7 +80,6 @@ export default function StudentDashboard() {
           <h2 className="font-headline text-3xl italic text-on-surface">Welcome back, {user?.name?.split(' ')[0]}!</h2>
         </div>
 
-<<<<<<< HEAD
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
           {/* Profile Card */}
           <div className="lg:col-span-12 bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8">
@@ -105,7 +98,7 @@ export default function StudentDashboard() {
                 {user?.email && (
                   <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary/5 text-tertiary text-xs font-bold border border-tertiary/10">
                     <MdEmail className="text-lg" />
-                    {user.email}
+                    {user.email}    
                   </span>
                 )}
               </div>
@@ -115,30 +108,8 @@ export default function StudentDashboard() {
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold shadow-lg shadow-secondary/20">
                 <MdCheckCircle className="text-lg" />
                 Active
-=======
-        {/* Profile Identity Card */}
-        <div className="bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8 mb-4">
-          <ProfilePictureUpload />
-          <div className="flex-1 text-center md:text-left space-y-4">
-            <h3 className="font-headline text-4xl italic text-on-surface">{user?.name}</h3>
-            <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 text-primary text-xs font-bold border border-primary/10">
-                <MdBadge className="text-lg" />
-                {user?.id || 'ID N/A'}
-              </span>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/5 text-secondary text-xs font-bold border border-secondary/10">
-                <MdSchool className="text-lg" />
-                {user?.department || 'Student'}
->>>>>>> 8d60695e8c8c6946e1ff86ca51546732c55fe18d
               </span>
             </div>
-          </div>
-          <div className="hidden md:flex flex-col items-end justify-center px-8 border-l border-outline-variant/30">
-            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 opacity-60">Status</span>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold shadow-lg shadow-secondary/20">
-              <MdCheckCircle className="text-lg" />
-              Active
-            </span>
           </div>
         </div>
 
@@ -297,5 +268,6 @@ export default function StudentDashboard() {
         </div>
       </div>
     </div>
-  );
+    </>
+  );  
 }

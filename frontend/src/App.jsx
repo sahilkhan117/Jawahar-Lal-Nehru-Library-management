@@ -23,6 +23,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminComplaints from './pages/admin/AdminComplaints'
 import AdminNotices from './pages/admin/AdminNotices'
 import AdminStaff from './pages/admin/AdminStaff'
+import AdminSettings from './pages/admin/AdminSettings'
 
 import AppLayout from './components/layout/AppLayout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -75,6 +76,7 @@ function App() {
                 <Route path="complaints" element={<AdminComplaints />} />
                 <Route path="notices" element={<AdminNotices />} />
                 <Route path="staff" element={<AdminStaff />} />
+                <Route path="settings" element={<AdminSettings />} />
                 <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
               </Routes>
             </AppLayout>

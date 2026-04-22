@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { 
-  createLibrarian, updateLibrarian, deleteLibrarian, resetLibrarianPassword, getAllLibrarians 
+  createLibrarian, updateLibrarian, deleteLibrarian, resetLibrarianPassword, getAllLibrarians,
+  getAllComplaints, updateComplaintStatus
 } = require('../controllers/admin.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
 
@@ -12,5 +13,8 @@ router.get('/librarians', getAllLibrarians);
 router.put('/librarians/:id', updateLibrarian);
 router.delete('/librarians/:id', deleteLibrarian);
 router.patch('/librarians/:id/reset-password', resetLibrarianPassword);
+
+router.get('/complaints', getAllComplaints);
+router.patch('/complaints/:id/status', updateComplaintStatus);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Librarian = require('../models/Librarian.model');
+const Complaint = require('../models/Complaint.model');
 const bcrypt = require('bcrypt');
 
 // Create Librarian
@@ -68,5 +69,38 @@ exports.getAllLibrarians = async (req, res) => {
     res.status(200).json({ success: true, librarians });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get all Complaints for Admin
+exports.getAllComplaints = async (req, res) => {
+  try {
+    const complaints = await Complaint.find()
+      .populate('studentId', 'name enrollmentNumber department')
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, complaints });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching complaints' });
+  }
+};
+
+// Update Complaint Status
+exports.updateComplaintStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const complaint = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    ).populate('studentId', 'name enrollmentNumber department');
+    
+    if (!complaint) {
+      return res.status(404).json({ message: 'Complaint not found' });
+    }
+    res.status(200).json({ success: true, complaint });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error updating complaint' });
   }
 };

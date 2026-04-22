@@ -27,7 +27,8 @@ app.use('/api/transactions', require('./routes/transaction.routes'));
 app.use('/api/complaints', require('./routes/complaint.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/librarian', require('./routes/librarian.routes'));
-app.use('/api/books', require('./routes/book.routes'));
+app.use('/api/notices', require('./routes/notice.routes'));
+app.use('/api/settings', require('./routes/setting.routes'));
 
 app.get('/', (req, res) => {
   res.send('Library Management System API is running...');

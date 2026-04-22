@@ -1,5 +1,4 @@
 const Book = require('../models/Book.model');
-<<<<<<< HEAD
 require('../models/Library.model'); // Register Library schema for populate
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -120,13 +119,9 @@ const bulkImportBooks = async (req, res) => {
   }
 };
 
-module.exports = {
-  getBooks,
-  addSingleBook,
-  bulkImportBooks
-};
-=======
-
+exports.getBooks = getBooks;
+exports.addSingleBook = addSingleBook;
+exports.bulkImportBooks = bulkImportBooks;
 // Get all books with search and filter
 exports.getAllBooks = async (req, res) => {
   try {
@@ -213,4 +208,3 @@ exports.toggleWishlist = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
->>>>>>> 8d60695e8c8c6946e1ff86ca51546732c55fe18d
