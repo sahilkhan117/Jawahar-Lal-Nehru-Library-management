@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MdBadge, MdSchool, MdCheckCircle, MdEventSeat, 
+  MdBadge, MdSchool, MdCheckCircle, MdEventSeat,
   MdNotificationsActive, MdTrendingUp, MdMenuBook, MdEmail
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
 
-export default function StudentDashboard() {  
+export default function StudentDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     issuedBooks: 0,
