@@ -1,12 +1,13 @@
 const Book = require('../models/Book.model');
 const Student = require('../models/Student.model');
+require('../models/Library.model'); // Register Library schema for populate
 const fs = require('fs');
 const csv = require('csv-parser');
 
-// Get all books with search and filter
+// Get all books with search and filter (Student & Global)
 exports.getAllBooks = async (req, res) => {
   try {
-    const { search, category, sort, query } = req.query; // Supporting both search and query param
+    const { search, category, sort, query, shelf } = req.query;
     const searchTerm = search || query;
     let filter = {};
 
@@ -20,6 +21,10 @@ exports.getAllBooks = async (req, res) => {
 
     if (category && category !== 'All' && category !== 'All Categories') {
       filter.category = category;
+    }
+
+    if (shelf && shelf !== 'All Shelves') {
+      filter.shelfLocation = shelf;
     }
 
     let sortQuery = { createdAt: -1 };
@@ -154,3 +159,6 @@ exports.bulkImportBooks = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error during bulk import' });
   }
 };
+
+// Aliases for compatibility if needed
+exports.getBooks = exports.getAllBooks;

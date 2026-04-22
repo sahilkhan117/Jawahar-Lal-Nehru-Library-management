@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MdBadge, MdSchool, MdCalendarToday, MdCheckCircle,
-  MdVerified, MdHistory, MdPayments, MdWorkspacePremium,
-  MdSecurity, MdDownload, MdErrorOutline, MdEmail,
-  MdDashboard, MdLibraryBooks, MdWarning,
-  MdTimeline, MdTrendingUp, MdMenuBook, MdNotificationsActive,
-  MdEventSeat, MdFiberManualRecord
+  MdBadge, MdSchool, MdCheckCircle, MdEventSeat, 
+  MdNotificationsActive, MdTrendingUp, MdMenuBook, MdEmail
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
 
-export default function StudentDashboard() {
+export default function StudentDashboard() {  
   const { user } = useAuth();
   const [stats, setStats] = useState({
     issuedBooks: 0,
@@ -78,7 +74,7 @@ export default function StudentDashboard() {
       <div className="max-w-6xl mx-auto space-y-card-gap">
 
         {/* Header Section */}
-        <div className="mb-2">
+        <div className="mb-2 px-2">
           <h2 className="font-headline text-3xl italic text-on-surface">Welcome back, {user?.name?.split(' ')[0]}!</h2>
         </div>
 
@@ -96,6 +92,12 @@ export default function StudentDashboard() {
                 <MdSchool className="text-lg" />
                 {user?.department || 'Student'}
               </span>
+              {user?.email && (
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary/5 text-tertiary text-xs font-bold border border-tertiary/10">
+                  <MdEmail className="text-lg" />
+                  {user.email}    
+                </span>
+              )}
             </div>
           </div>
           <div className="hidden md:flex flex-col items-end justify-center px-8 border-l border-outline-variant/30">
@@ -123,7 +125,6 @@ export default function StudentDashboard() {
               {Array.from({ length: 9 }, (_, i) => (
                 <div key={`col-${i}`} className="flex flex-col gap-1">
                   {Array.from({ length: 7 }, (_, j) => {
-                    // Limit to 63 total cells to cover 60 days
                     if (i === 8 && j > 3) return null;
                     const intensity = Math.floor(Math.random() * 5);
                     return (
@@ -156,13 +157,13 @@ export default function StudentDashboard() {
           </div>
 
           {/* Seat Vacancy Section */}
-          <div className="col-span-12 lg:col-span-4 bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col justify-center items-center relative overflow-hidden">
+          <div className="col-span-12 lg:col-span-4 bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4">
               <MdEventSeat className="text-2xl text-primary/20" />
             </div>
             <div className="w-full space-y-6 mt-2">
               {seatStats.libraries.map((lib, idx) => {
-                const totalSeats = lib.totalSeats || 1; // Prevent division by zero
+                const totalSeats = lib.totalSeats || 1;
                 const occupied = totalSeats - (lib.availableSeats || 0);
                 const occupiedPercent = (occupied / totalSeats) * 100;
 
@@ -179,7 +180,6 @@ export default function StudentDashboard() {
                       </div>
                     </div>
 
-                    {/* Horizontal Progress Bar */}
                     <div className="h-4 w-full bg-background/50 rounded-full border border-outline-variant/10 overflow-hidden relative">
                       <div
                         className={`h-full transition-all duration-1000 ease-out ${occupiedPercent > 80 ? 'bg-red-500' :
@@ -262,5 +262,5 @@ export default function StudentDashboard() {
         </div>
       </div>
     </div>
-  );
+  );  
 }
