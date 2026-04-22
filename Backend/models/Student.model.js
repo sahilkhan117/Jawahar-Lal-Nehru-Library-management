@@ -18,7 +18,9 @@ const studentSchema = new mongoose.Schema({
   totalActiveFines: { type: Number, default: 0 },
   
   // For the GitHub-style Heatmap
-  attendanceHistory: [{ type: Date }] 
+  attendanceHistory: [{ type: Date }],
+  
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Student', studentSchema);

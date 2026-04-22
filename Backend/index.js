@@ -22,6 +22,8 @@ app.use((req, res, next) => {
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/telemetry', require('./routes/telemetry.routes'));
 app.use('/api/upload', require('./routes/upload.routes'));
+app.use('/api/books', require('./routes/book.routes'));
+app.use('/api/transactions', require('./routes/transaction.routes'));
 app.use('/api/complaints', require('./routes/complaint.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/librarian', require('./routes/librarian.routes'));

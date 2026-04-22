@@ -17,9 +17,6 @@ export default function StudentProfile() {
     });
     const [loading, setLoading] = useState(true);
 
-    // Generate mock attendance data for heatmap (90 days)
-    const attendanceData = Array.from({ length: 91 }, () => Math.floor(Math.random() * 5));
-
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -47,13 +44,10 @@ export default function StudentProfile() {
     return (
         <div className="space-y-card-gap pb-20">
             <div className="max-w-6xl mx-auto space-y-card-gap">
-                <div className="mb-8">
-                    <h2 className="font-headline text-3xl italic text-on-surface">Student Profile & Credentials</h2>
-                    <p className="text-sm text-on-surface-variant mt-1 opacity-60">Your academic identity and library standing at a glance.</p>
-                </div>
+
 
                 {/* Profile Identity Card */}
-                <div className="bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8">
+                <div className="bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8 ">
                     <ProfilePictureUpload />
                     <div className="flex-1 text-center md:text-left space-y-4">
                         <h3 className="font-headline text-4xl italic text-on-surface">{user?.name}</h3>
@@ -77,7 +71,7 @@ export default function StudentProfile() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap gap-4 mt-4">
                     {/* Clearance & Badge Section (Moved here) */}
                     <div className="lg:col-span-8 bg-surface rounded-card p-10 shadow-bento border border-outline-variant/30 flex flex-col justify-center items-center text-center relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-secondary"></div>
@@ -149,47 +143,6 @@ export default function StudentProfile() {
                             <MdDownload className="text-2xl" />
                             Download Cert
                         </button>
-                    </div>
-
-                    {/* Attendance Heatmap Section */}
-                    <div className="lg:col-span-12 bg-surface rounded-card p-10 shadow-bento border border-outline-variant/30">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <h3 className="font-headline text-3xl italic text-on-surface">Library Attendance</h3>
-                                <p className="text-sm text-on-surface-variant opacity-60">Historical physical presence over the last 90 days.</p>
-                            </div>
-                            <MdTimeline className="text-3xl text-primary" />
-                        </div>
-
-                        <div className="overflow-x-auto pb-4">
-                            <div className="flex gap-1 min-w-max">
-                                <div className="grid grid-flow-col grid-rows-7 gap-1">
-                                    {attendanceData.map((val, i) => (
-                                        <div
-                                            key={i}
-                                            className={`w-4 h-4 rounded-sm transition-all hover:scale-125 cursor-pointer ${val === 0 ? 'bg-background border border-outline-variant/20' :
-                                                    val === 1 ? 'bg-primary/20' :
-                                                        val === 2 ? 'bg-primary/40' :
-                                                            val === 3 ? 'bg-primary/70' :
-                                                                'bg-primary'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 flex items-center gap-4 text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-widest">
-                            <span>Less</span>
-                            <div className="flex gap-1">
-                                <div className="w-3 h-3 rounded-sm bg-background border border-outline-variant/20"></div>
-                                <div className="w-3 h-3 rounded-sm bg-primary/20"></div>
-                                <div className="w-3 h-3 rounded-sm bg-primary/40"></div>
-                                <div className="w-3 h-3 rounded-sm bg-primary/70"></div>
-                                <div className="w-3 h-3 rounded-sm bg-primary"></div>
-                            </div>
-                            <span>More</span>
-                        </div>
                     </div>
                 </div>
             </div>
