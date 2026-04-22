@@ -5,6 +5,7 @@ const adminSchema = new mongoose.Schema({
   password: { type: String, required: true },
   
   name: { type: String, required: true },
+  profilePicture: { type: String, default: "" },
   accessLevel: { type: String, default: 'SuperAdmin' } // Future-proofing if you add sub-admins
 }, { timestamps: true });
 

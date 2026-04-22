@@ -8,6 +8,7 @@ const protect = (req, res, next) => {
   }
 
   if (!token) {
+    console.warn(`[AUTH] 401: No token provided for ${req.url}`);
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 
@@ -16,6 +17,7 @@ const protect = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
+    console.error(`[AUTH] 401: Token verification failed for ${req.url} - ${error.message}`);
     return res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };
