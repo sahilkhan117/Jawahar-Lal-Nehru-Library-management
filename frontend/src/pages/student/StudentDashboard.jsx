@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   MdBadge, MdSchool, MdCalendarToday, MdCheckCircle, 
   MdVerified, MdHistory, MdPayments, MdWorkspacePremium, 
-  MdSecurity, MdDownload, MdErrorOutline 
+  MdSecurity, MdDownload, MdErrorOutline, MdEmail 
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
@@ -64,6 +64,12 @@ export default function StudentDashboard() {
                   <MdSchool className="text-lg" />
                   {user?.department || 'Student'}
                 </span>
+                {user?.email && (
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary/5 text-tertiary text-xs font-bold border border-tertiary/10">
+                    <MdEmail className="text-lg" />
+                    {user.email}
+                  </span>
+                )}
               </div>
             </div>
             <div className="hidden md:flex flex-col items-end justify-center px-8 border-l border-outline-variant/30">

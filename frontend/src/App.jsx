@@ -45,7 +45,7 @@ function App() {
                 <Route path="history" element={<StudentHistory />} />
                 <Route path="complaints" element={<StudentComplaints />} />
                 <Route path="profile" element={<StudentProfile />} />
-                <Route path="*" element={<Navigate to="dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
               </Routes>
             </AppLayout>
           } />
@@ -60,7 +60,7 @@ function App() {
                 <Route path="students" element={<LibrarianStudents />} />
                 <Route path="inventory" element={<LibrarianInventory />} />
                 <Route path="defaulters" element={<LibrarianDefaulters />} />
-                <Route path="*" element={<Navigate to="pos" replace />} />
+                <Route path="*" element={<Navigate to="/librarian/pos" replace />} />
               </Routes>
             </AppLayout>
           } />
@@ -75,7 +75,7 @@ function App() {
                 <Route path="complaints" element={<AdminComplaints />} />
                 <Route path="notices" element={<AdminNotices />} />
                 <Route path="staff" element={<AdminStaff />} />
-                <Route path="*" element={<Navigate to="dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
               </Routes>
             </AppLayout>
           } />

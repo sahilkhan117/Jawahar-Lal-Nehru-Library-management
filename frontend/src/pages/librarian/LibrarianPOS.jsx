@@ -55,7 +55,7 @@ export default function LibrarianPOS() {
 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-2 pl-1" htmlFor="patron-id">Patron ID</label>
 <div className="relative flex items-center">
 <MdBadge className="absolute left-4 text-outline group-focus-within:text-primary transition-colors" />
-<input autofocus="" className="w-full bg-surface-container-low border-0 text-on-surface font-body-lg text-body-lg rounded-lg pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="patron-id" placeholder="Scan or type ID..." type="text"/>
+<input autoFocus={true} className="w-full bg-surface-container-low border-0 text-on-surface font-body-lg text-body-lg rounded-lg pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="patron-id" placeholder="Scan or type ID..." type="text"/>
 </div>
 </div>
 <div className="relative group">
