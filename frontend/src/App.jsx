@@ -10,6 +10,7 @@ import StudentDashboard from './pages/student/StudentDashboard'
 import StudentCatalog from './pages/student/StudentCatalog'
 import StudentHistory from './pages/student/StudentHistory'
 import StudentProfile from './pages/student/StudentProfile'
+import StudentComplaints from './pages/student/StudentComplaints'
 
 // Librarian Pages
 import LibrarianPOS from './pages/librarian/LibrarianPOS'
@@ -42,6 +43,7 @@ function App() {
                 <Route path="dashboard" element={<StudentDashboard />} />
                 <Route path="catalog" element={<StudentCatalog />} />
                 <Route path="history" element={<StudentHistory />} />
+                <Route path="complaints" element={<StudentComplaints />} />
                 <Route path="profile" element={<StudentProfile />} />
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
               </Routes>

@@ -15,6 +15,7 @@ const Sidebar = ({ role }) => {
     { name: 'Dashboard', path: '/student/dashboard', icon: MdDashboard },
     { name: 'Catalog', path: '/student/catalog', icon: MdLibraryBooks },
     { name: 'History', path: '/student/history', icon: MdHistory },
+    { name: 'Complaints', path: '/student/complaints', icon: MdWarning },
     { name: 'Profile', path: '/student/profile', icon: MdPerson },
   ];
 
