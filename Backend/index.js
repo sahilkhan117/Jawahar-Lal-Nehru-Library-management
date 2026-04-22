@@ -12,7 +12,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes will go here
+// Routes
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/telemetry', require('./routes/telemetry.routes'));
+
 app.get('/', (req, res) => {
   res.send('Library Management System API is running...');
 });

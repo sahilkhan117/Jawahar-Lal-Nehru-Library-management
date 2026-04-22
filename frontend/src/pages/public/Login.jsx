@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   MdSchool, MdBadge, MdLock, MdVisibility, MdVisibilityOff, 
   MdArrowForward, MdShield, MdSpeed, MdPublic, MdHelpOutline
 } from 'react-icons/md';
+import { useAuth } from '../../context/AuthContext';
 
 const StatChip = ({ num, label }) => (
   <div className="text-center px-4">
@@ -28,12 +29,29 @@ const FeaturePill = ({ icon: Icon, title, desc, colorClass }) => (
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [enrollmentId, setEnrollmentId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    // Simulation
-    setTimeout(() => setLoading(false), 2000);
+    
+    const result = await login(enrollmentId, password);
+    
+    if (result.success) {
+      // Redirect based on role
+      if (result.role === 'admin') navigate('/admin');
+      else if (result.role === 'librarian') navigate('/librarian');
+      else navigate('/student');
+    } else {
+      setError(result.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,6 +149,13 @@ export default function Login() {
               <p className="text-sm text-on-surface-variant opacity-60">Please enter your institutional credentials.</p>
             </div>
 
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-xl flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60 ml-1">Enrollment Number</label>
@@ -139,6 +164,8 @@ export default function Login() {
                   <input 
                     type="text" 
                     placeholder="e.g. UN-123456" 
+                    value={enrollmentId}
+                    onChange={(e) => setEnrollmentId(e.target.value)}
                     className="w-full pl-12 pr-4 py-4 bg-background border border-outline-variant/30 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     required
                   />
@@ -155,6 +182,8 @@ export default function Login() {
                   <input 
                     type={showPassword ? "text" : "password"} 
                     placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-12 pr-12 py-4 bg-background border border-outline-variant/30 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     required
                   />
