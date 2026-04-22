@@ -1,120 +1,81 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
+// Public Pages
+import Landing from './pages/public/Landing'
+import Login from './pages/public/Login'
+
+// Student Pages
+import StudentDashboard from './pages/student/StudentDashboard'
+import StudentCatalog from './pages/student/StudentCatalog'
+import StudentHistory from './pages/student/StudentHistory'
+import StudentProfile from './pages/student/StudentProfile'
+
+// Librarian Pages
+import LibrarianPOS from './pages/librarian/LibrarianPOS'
+import LibrarianStudents from './pages/librarian/LibrarianStudents'
+import LibrarianInventory from './pages/librarian/LibrarianInventory'
+import LibrarianDefaulters from './pages/librarian/LibrarianDefaulters'
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminComplaints from './pages/admin/AdminComplaints'
+import AdminNotices from './pages/admin/AdminNotices'
+import AdminStaff from './pages/admin/AdminStaff'
+
+import AppLayout from './components/layout/AppLayout'
+
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
 
-      <div className="ticks"></div>
+        {/* Student Routes */}
+        <Route path="/student/*" element={
+          <AppLayout role="student">
+            <Routes>
+              <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="catalog" element={<StudentCatalog />} />
+              <Route path="history" element={<StudentHistory />} />
+              <Route path="profile" element={<StudentProfile />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
+            </Routes>
+          </AppLayout>
+        } />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* Librarian Routes */}
+        <Route path="/librarian/*" element={
+          <AppLayout role="librarian">
+            <Routes>
+              <Route path="pos" element={<LibrarianPOS />} />
+              <Route path="students" element={<LibrarianStudents />} />
+              <Route path="inventory" element={<LibrarianInventory />} />
+              <Route path="defaulters" element={<LibrarianDefaulters />} />
+              <Route path="*" element={<Navigate to="pos" replace />} />
+            </Routes>
+          </AppLayout>
+        } />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {/* Admin Routes */}
+        <Route path="/admin/*" element={
+          <AppLayout role="admin">
+            <Routes>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="complaints" element={<AdminComplaints />} />
+              <Route path="notices" element={<AdminNotices />} />
+              <Route path="staff" element={<AdminStaff />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
+            </Routes>
+          </AppLayout>
+        } />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
