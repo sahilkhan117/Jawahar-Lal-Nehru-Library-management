@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { 
-  MdBadge, MdSchool, MdCalendarToday, MdCheckCircle, 
-  MdVerified, MdHistory, MdPayments, MdWorkspacePremium, 
-  MdSecurity, MdDownload, MdErrorOutline, MdEmail 
-=======
 import {
-  MdDashboard, MdLibraryBooks, MdHistory, MdWarning,
+  MdBadge, MdSchool, MdCalendarToday, MdCheckCircle,
+  MdVerified, MdHistory, MdPayments, MdWorkspacePremium,
+  MdSecurity, MdDownload, MdErrorOutline, MdEmail,
+  MdDashboard, MdLibraryBooks, MdWarning,
   MdTimeline, MdTrendingUp, MdMenuBook, MdNotificationsActive,
-  MdBadge, MdSchool, MdCheckCircle, MdEventSeat, MdFiberManualRecord
->>>>>>> 8d60695e8c8c6946e1ff86ca51546732c55fe18d
+  MdEventSeat, MdFiberManualRecord
 } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
@@ -86,36 +82,6 @@ export default function StudentDashboard() {
           <h2 className="font-headline text-3xl italic text-on-surface">Welcome back, {user?.name?.split(' ')[0]}!</h2>
         </div>
 
-<<<<<<< HEAD
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
-          {/* Profile Card */}
-          <div className="lg:col-span-12 bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8">
-            <ProfilePictureUpload />
-            <div className="flex-1 text-center md:text-left space-y-4">
-              <h3 className="font-headline text-4xl italic text-on-surface">{user?.name}</h3>
-              <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 text-primary text-xs font-bold border border-primary/10">
-                  <MdBadge className="text-lg" />
-                  {user?.id}
-                </span>
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/5 text-secondary text-xs font-bold border border-secondary/10">
-                  <MdSchool className="text-lg" />
-                  {user?.department || 'Student'}
-                </span>
-                {user?.email && (
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary/5 text-tertiary text-xs font-bold border border-tertiary/10">
-                    <MdEmail className="text-lg" />
-                    {user.email}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="hidden md:flex flex-col items-end justify-center px-8 border-l border-outline-variant/30">
-              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 opacity-60">Account Status</span>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold shadow-lg shadow-secondary/20">
-                <MdCheckCircle className="text-lg" />
-                Active
-=======
         {/* Profile Identity Card */}
         <div className="bg-surface rounded-card p-8 shadow-bento border border-outline-variant/30 flex flex-col md:flex-row items-center md:items-start gap-8 mb-4">
           <ProfilePictureUpload />
@@ -129,7 +95,6 @@ export default function StudentDashboard() {
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/5 text-secondary text-xs font-bold border border-secondary/10">
                 <MdSchool className="text-lg" />
                 {user?.department || 'Student'}
->>>>>>> 8d60695e8c8c6946e1ff86ca51546732c55fe18d
               </span>
             </div>
           </div>

@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import {
-  MdArrowForward, MdSearch, MdFilterList,
-  MdSort, MdHourglassEmpty, MdBookmarkBorder,
+import { 
+  MdArrowForward, MdSearch, MdFilterList, 
+  MdSort, MdHourglassEmpty, MdBookmarkBorder, 
   MdChromeReaderMode, MdOutlineLibraryBooks
 } from 'react-icons/md';
+import { useLocation } from 'react-router-dom';
 import API from '../../api/axios';
 
 export default function StudentCatalog() {
+  const location = useLocation();
   const [books, setBooks] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('newest');
+
+  // Handle URL search params on mount or URL change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlSearch = params.get('search');
+    if (urlSearch) {
+      setSearch(urlSearch);
+    }
+  }, [location.search]);
 
   const categories = ['All', 'Computer Science', 'Physics', 'Mathematics', 'Literature', 'History', 'Engineering'];
 
