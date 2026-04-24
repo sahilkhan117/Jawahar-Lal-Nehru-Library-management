@@ -26,3 +26,4 @@ dist-ssr
 .agents/
 .stitch/
 .env
+.node_modules
